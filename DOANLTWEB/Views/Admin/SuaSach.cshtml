@@ -1,0 +1,172 @@
+﻿@model DOANLTWEB.Models.Sach
+@{
+    ViewBag.Title = "Sửa thông tin sách";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-header">
+    <div class="container-fluid">
+        <h1><i class="fas fa-edit"></i> Sửa thông tin sách</h1>
+        <p class="mb-0">Cập nhật thông tin sách: @Model.TenSach</p>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="table-container">
+        @using (Html.BeginForm("SuaSach", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(model => model.MaSach)
+
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-info-circle"></i> Thông tin cơ bản</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tên sách *</label>
+                                        @Html.TextBoxFor(model => model.TenSach, new { @class = "form-control", required = "required" })
+                                        @Html.ValidationMessageFor(model => model.TenSach)
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Giá *</label>
+                                        @Html.TextBoxFor(model => model.Gia, new { @class = "form-control", type = "number", step = "1000", required = "required" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Thể loại chính *</label>
+                                        @Html.DropDownList("MaTLS", null, "Chọn thể loại", new { @class = "form-control", required = "required" })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Nhà xuất bản *</label>
+                                        @Html.DropDownList("MaNXB", null, "Chọn NXB", new { @class = "form-control", required = "required" })
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Mô tả</label>
+                                @Html.TextAreaFor(model => model.Mota, new { @class = "form-control", rows = "4" })
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-language"></i> Thông tin bổ sung</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Ngôn ngữ</label>
+                                        @Html.TextBoxFor(model => model.AddNgonNgu, new { @class = "form-control", placeholder = "Việt, Anh, Pháp..." })
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Số trang</label>
+                                        @Html.TextBoxFor(model => model.SoTrang, new { @class = "form-control", type = "number" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-image"></i> Hình ảnh</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Hình ảnh hiện tại</label>
+                                @if (!string.IsNullOrEmpty(Model.Hinh))
+                                {
+                                    <div class="text-center mb-3">
+                                        <img src="~/Content/images/@Model.Hinh" alt="@Model.TenSach"
+                                             class="img-fluid rounded" style="max-height: 200px;">
+                                        <p class="text-muted mt-2">@Model.Hinh</p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="text-center text-muted mb-3">
+                                        <i class="fas fa-image fa-3x mb-2"></i>
+                                        <p>Chưa có hình ảnh</p>
+                                    </div>
+                                }
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Thay đổi hình ảnh</label>
+                                <input type="file" name="Hinh" class="form-control" accept=".jpg,.jpeg,.png,.gif" />
+                                <small class="text-muted">Để trống nếu không thay đổi</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mt-3">
+                        <div class="card-header">
+                            <h5><i class="fas fa-users"></i> Tác giả</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Chọn tác giả</label>
+                                @Html.ListBox("SelectedTacGia", ViewBag.TacGiaList as MultiSelectList, new { @class = "form-control", size = "6" })
+                                <small class="text-muted">Giữ Ctrl để chọn nhiều tác giả</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <button type="submit" class="btn btn-success btn-lg">
+                    <i class="fas fa-save"></i> Cập nhật sách
+                </button>
+                <a href="@Url.Action("QuanLySach")" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            // Validate form
+            $('form').on('submit', function () {
+                const tenSach = $('input[name="TenSach"]').val();
+                const gia = $('input[name="Gia"]').val();
+                const maTLS = $('select[name="MaTLS"]').val();
+
+                if (!tenSach || !gia || !maTLS) {
+                    alert('Vui lòng điền đầy đủ thông tin bắt buộc!');
+                    return false;
+                }
+
+                if (gia < 1000) {
+                    alert('Giá sách phải lớn hơn 1,000 VNĐ!');
+                    return false;
+                }
+
+                return true;
+            });
+        });
+    </script>
+}

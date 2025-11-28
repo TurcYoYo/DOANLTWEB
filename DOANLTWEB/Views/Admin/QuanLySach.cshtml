@@ -1,0 +1,161 @@
+﻿@model List<DOANLTWEB.Models.Sach>
+@{
+    ViewBag.Title = "Quản lý sách";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-header">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-book"></i> Quản lý sách</h1>
+                <p class="mb-0">Quản lý danh sách sách trong hệ thống</p>
+            </div>
+            <a href="@Url.Action("ThemSach", "Admin")" class="btn btn-success">
+                <i class="fas fa-plus"></i> Thêm sách mới
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="table-container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4><i class="fas fa-list"></i> Danh sách sách</h4>
+            <span class="badge bg-primary">@Model.Count sách</span>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Mã sách</th>
+                            <th>Hình ảnh</th>
+                            <th>Tên sách</th>
+                            <th>Giá</th>
+                            <th>Mã thể loại</th>
+                            <th>Mã NXB</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var sach in Model)
+                        {
+                            <tr>
+                                <td><strong>@sach.MaSach</strong></td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(sach.Hinh))
+                                    {
+                                        <img src="~/Content/images/@sach.Hinh" alt="@sach.TenSach"
+                                             class="img-thumbnail" style="width: 50px; height: 60px; object-fit: cover;">
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light d-flex align-items-center justify-content-center"
+                                             style="width: 50px; height: 60px;">
+                                            <i class="fas fa-book text-muted"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>@sach.TenSach</strong>
+                                        @if (!string.IsNullOrEmpty(sach.Mota))
+                                        {
+                                            <br>
+                                            <small class="text-muted">@(sach.Mota.Length > 50 ? sach.Mota.Substring(0, 50) + "..." : sach.Mota)</small>
+                                        }
+                                    </div>
+                                </td>
+                                <td class="text-success fw-bold">
+                                    @if (sach.Gia.HasValue)
+                                    {
+                                        <text>@string.Format("{0:N0}", sach.Gia) VNĐ</text>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Chưa có giá</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (sach.MaTLS.HasValue)
+                                    {
+                                        <span class="badge bg-secondary">@sach.MaTLS</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (sach.MaNXB.HasValue)
+                                    {
+                                        <span class="badge bg-info">@sach.MaNXB</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a href="@Url.Action("SuaSach", "Admin", new { id = sach.MaSach })"
+                                           class="btn btn-warning" title="Sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-danger btn-xoa-sach"
+                                                data-masach="@sach.MaSach"
+                                                data-tensach="@sach.TenSach"
+                                                title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning text-center">
+                <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+                <h5>Không có sách nào</h5>
+                <p class="mb-0">Chưa có sách nào trong hệ thống.</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('.btn-xoa-sach').on('click', function () {
+                var maSach = $(this).data('masach');
+                var tenSach = $(this).data('tensach');
+                var row = $(this).closest('tr');
+
+                if (confirm('Bạn có chắc muốn xóa sách "' + tenSach + '"?\n\nLưu ý: Nếu sách đã có trong đơn hàng, sách sẽ chỉ bị ẩn.')) {
+                    $.post('@Url.Action("XoaSach", "Admin")', { id: maSach })
+                        .done(function (response) {
+                            if (response.success) {
+                                alert(response.message);
+                                row.fadeOut(400, function() {
+                                    $(this).remove();
+                                });
+                            } else {
+                                alert(response.message);
+                            }
+                        })
+                        .fail(function () {
+                            alert('Lỗi kết nối server!');
+                        });
+                }
+            });
+        });
+    </script>
+}

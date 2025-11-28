@@ -1,0 +1,124 @@
+﻿@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-header">
+    <div class="container-fluid">
+        <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+        <p class="mb-0">Tổng quan hệ thống quản trị BookStore</p>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- Thống kê nhanh -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card stat-card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Tổng khách hàng</h5>
+                            <h2>@ViewBag.TongKhachHang</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Tổng đơn hàng</h5>
+                            <h2>@ViewBag.TongDonHang</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-shopping-cart fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Tổng sách</h5>
+                            <h2>@ViewBag.TongSach</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-book fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Doanh thu</h5>
+                            <h2>@string.Format("{0:N0}", ViewBag.TongDoanhThu) VNĐ</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-money-bill-wave fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu chức năng nhanh -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="table-container">
+                <h4><i class="fas fa-rocket"></i> Truy cập nhanh</h4>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <a href="@Url.Action("QuanLySach", "Admin")" class="card quick-action-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-book fa-2x text-primary mb-2"></i>
+                                <h6>Quản lý sách</h6>
+                                <small class="text-muted">Thêm, sửa, xóa sách</small>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="@Url.Action("QuanLyDonHang", "Admin")" class="card quick-action-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-shopping-cart fa-2x text-success mb-2"></i>
+                                <h6>Quản lý đơn hàng</h6>
+                                <small class="text-muted">Xem và xử lý đơn hàng</small>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="@Url.Action("QuanLyKhachHang", "Admin")" class="card quick-action-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-2x text-warning mb-2"></i>
+                                <h6>Quản lý khách hàng</h6>
+                                <small class="text-muted">Danh sách khách hàng</small>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <a href="@Url.Action("ThongKe", "Admin")" class="card quick-action-card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-bar fa-2x text-info mb-2"></i>
+                                <h6>Thống kê</h6>
+                                <small class="text-muted">Báo cáo & Thống kê</small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

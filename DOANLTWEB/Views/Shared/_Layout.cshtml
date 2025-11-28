@@ -1,0 +1,415 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@(ViewBag.Title ?? "BookStore")</title>
+
+    <!-- Load CSS -->
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/site.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            padding-top: 0;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+        }
+
+        .footer {
+            background-color: #343a40;
+            color: white;
+            padding: 20px 0;
+            margin-top: 50px;
+        }
+
+        .main-content {
+            min-height: calc(100vh - 200px);
+            padding: 20px 0;
+        }
+
+        .book-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Badge giỏ hàng */
+        .cart-count {
+            font-size: 10px;
+            font-weight: bold;
+            min-width: 18px;
+            height: 18px;
+            padding: 2px 5px;
+            border-radius: 10px;
+        }
+
+        /* Button loading */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+        .btn-loading::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin-left: -10px;
+            margin-top: -10px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-right-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="@Url.Action("Index", "Sach")">
+                <i class="fas fa-book"></i> BookStore
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Index", "Sach")">
+                            <i class="fas fa-home"></i> Trang chủ
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="@Url.Action("Search", "Sach")">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <!-- Nút giỏ hàng -->
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="@Url.Action("Index", "Cart")">
+                            <i class="fas fa-shopping-cart"></i> Giỏ hàng
+                            <span class="badge bg-danger cart-count">0</span>
+                        </a>
+                    </li>
+
+                    @if (Session["KhachHang"] != null)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user"></i> @(Session["TenKH"]?.ToString() ?? "Khách hàng")
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="@Url.Action("Profile", "Account")">Thông tin tài khoản</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("MyOrders", "Order")">Đơn hàng của tôi</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Logout", "Account")">Đăng xuất</a></li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Login", "Account")">
+                                <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="@Url.Action("Register", "Account")">
+                                <i class="fas fa-user-plus"></i> Đăng ký
+                            </a>
+                        </li>
+                    }
+                    <li class="nav-item">
+                        <a class="nav-link text-warning" href="@Url.Action("Login", "Admin")">
+                            <i class="fas fa-cog"></i> Quản trị
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container text-center">
+            <p>&copy; @DateTime.Now.Year - BookStore. All rights reserved.</p>
+            <p>Hệ thống quản lý bán sách trực tuyến</p>
+        </div>
+    </footer>
+
+    <!-- Load jQuery và Bootstrap -->
+    <script src="~/Scripts/jquery-3.6.0.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+
+    <!-- SCRIPT QUẢN LÝ GIỎ HÀNG -->
+    <script>
+        console.log('Layout script loaded');
+
+        // Hàm cập nhật số lượng giỏ hàng
+        function updateCartCount() {
+            console.log('Calling updateCartCount...');
+            $.ajax({
+                url: '@Url.Action("GetCartCount", "Cart")',
+                type: 'GET',
+                success: function (data) {
+                    console.log('Cart count response:', data);
+                    $('.cart-count').text(data.count || 0);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error getting cart count:', error);
+                    $('.cart-count').text(0);
+                }
+            });
+        }
+
+        // Hàm thêm vào giỏ hàng
+        function addToCart(maSach, soLuong) {
+            console.log('addToCart called:', maSach, soLuong);
+
+            var $btn = $('.btn-them-vao-gio[data-masach="' + maSach + '"]');
+            var originalText = $btn.html();
+
+            // Disable button và thêm loading
+            $btn.prop('disabled', true).addClass('btn-loading');
+
+            $.ajax({
+                url: '@Url.Action("AddToCart", "Cart")',
+                type: 'POST',
+                data: { maSach: maSach, soLuong: soLuong },
+                success: function (response) {
+                    console.log('AddToCart response:', response);
+
+                    if (response.success) {
+                        alert(response.message || 'Đã thêm vào giỏ hàng!');
+                        updateCartCount();
+                    } else {
+                        if (response.message && response.message.includes("đăng nhập")) {
+                            if (confirm(response.message + '\nBạn có muốn đăng nhập không?')) {
+                                window.location.href = '@Url.Action("Login", "Account")';
+                            }
+                        } else {
+                            alert(response.message || 'Có lỗi xảy ra!');
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('AddToCart error:', error);
+                    alert('Lỗi kết nối! Vui lòng thử lại.');
+                },
+                complete: function () {
+                    // Khôi phục button
+                    setTimeout(function () {
+                        $btn.prop('disabled', false).removeClass('btn-loading').html(originalText);
+                    }, 500);
+                }
+            });
+        }
+
+        // Khởi tạo khi trang load
+        $(document).ready(function () {
+            <script>
+    console.log('Layout script loaded');
+
+    // Hàm cập nhật số lượng giỏ hàng
+    function updateCartCount() {
+        console.log('Calling updateCartCount...');
+        $.ajax({
+            url: '@Url.Action("GetCartCount", "Cart")',
+            type: 'GET',
+            success: function (data) {
+                console.log('Cart count response:', data);
+                $('.cart-count').text(data.count || 0);
+            },
+            error: function (xhr, status, error) {
+                console.error('Error getting cart count:', error);
+                $('.cart-count').text(0);
+            }
+        });
+    }
+
+    // Hàm thêm vào giỏ hàng
+    function addToCart(maSach, soLuong) {
+        console.log('addToCart called:', maSach, soLuong);
+
+        var $btn = $('.btn-them-vao-gio[data-masach="' + maSach + '"]');
+        var originalText = $btn.html();
+
+        // Disable button và thêm loading
+        $btn.prop('disabled', true).addClass('btn-loading');
+
+        $.ajax({
+            url: '@Url.Action("AddToCart", "Cart")',
+            type: 'POST',
+            data: { maSach: maSach, soLuong: soLuong },
+            success: function (response) {
+                console.log('AddToCart response:', response);
+
+                if (response.success) {
+                    alert(response.message || 'Đã thêm vào giỏ hàng!');
+                    updateCartCount();
+                } else {
+                    if (response.message && response.message.includes("đăng nhập")) {
+                        if (confirm(response.message + '\nBạn có muốn đăng nhập không?')) {
+                            window.location.href = '@Url.Action("Login", "Account")';
+                        }
+                    } else {
+                        alert(response.message || 'Có lỗi xảy ra!');
+                    }
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('AddToCart error:', error);
+                alert('Lỗi kết nối! Vui lòng thử lại.');
+            },
+            complete: function () {
+                // Khôi phục button
+                setTimeout(function () {
+                    $btn.prop('disabled', false).removeClass('btn-loading').html(originalText);
+                }, 500);
+            }
+        });
+    }
+
+    // HÀM XÓA SÁCH KHỎI GIỎ HÀNG - THÊM VÀO ĐÂY
+    function removeFromCart(maSach) {
+        console.log('removeFromCart called:', maSach);
+
+        if (!confirm('Bạn có chắc muốn xóa sách này khỏi giỏ hàng?')) {
+            return;
+        }
+
+        var $btn = $('.btn-xoa[data-masach="' + maSach + '"]');
+        var originalText = $btn.html();
+
+        // Disable button và thêm loading
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Đang xóa...');
+
+        $.ajax({
+            url: '@Url.Action("RemoveFromCart", "Cart")',
+            type: 'POST',
+            data: { maSach: maSach },
+            success: function (response) {
+                console.log('RemoveFromCart response:', response);
+
+                if (response.success) {
+                    alert(response.message || 'Đã xóa khỏi giỏ hàng!');
+
+                    // Xóa dòng khỏi bảng
+                    $('#row-' + maSach).fadeOut(300, function() {
+                        $(this).remove();
+
+                        // Cập nhật tổng tiền
+                        $('#tong-tien').text(formatCurrency(response.tongTien) + ' VNĐ');
+
+                        // Cập nhật số lượng giỏ hàng
+                        updateCartCount();
+
+                        // Nếu giỏ hàng trống, reload trang
+                        if (response.tongSoLuong === 0) {
+                            setTimeout(function() {
+                                location.reload();
+                            }, 500);
+                        }
+                    });
+                } else {
+                    alert(response.message || 'Có lỗi xảy ra khi xóa!');
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error('RemoveFromCart error:', error);
+                alert('Lỗi kết nối! Vui lòng thử lại.');
+            },
+            complete: function () {
+                // Khôi phục button
+                $btn.prop('disabled', false).html(originalText);
+            }
+        });
+    }
+
+    // Hàm định dạng tiền - THÊM VÀO ĐÂY
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN').format(amount);
+    }
+
+    // Khởi tạo khi trang load
+    $(document).ready(function () {
+        console.log('Document ready!');
+
+        // Cập nhật số lượng giỏ hàng
+        updateCartCount();
+
+        // Xử lý click nút thêm vào giỏ hàng
+        $(document).on('click', '.btn-them-vao-gio', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var maSach = $(this).data('masach');
+            console.log('Thêm giỏ button clicked! MaSach:', maSach);
+
+            if (!maSach) {
+                alert('Lỗi: Không tìm thấy mã sách!');
+                return;
+            }
+
+            addToCart(maSach, 1);
+        });
+
+        // XỬ LÝ CLICK NÚT XÓA - THÊM VÀO ĐÂY
+        $(document).on('click', '.btn-xoa', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            var maSach = $(this).data('masach');
+            console.log('Xóa button clicked! MaSach:', maSach);
+
+            if (!maSach) {
+                alert('Lỗi: Không tìm thấy mã sách!');
+                return;
+            }
+
+            removeFromCart(maSach);
+        });
+
+        // Active menu highlighting
+        var currentUrl = window.location.pathname;
+        $('.navbar-nav .nav-link').each(function () {
+            if ($(this).attr('href') === currentUrl) {
+                $(this).addClass('active');
+            }
+        });
+    });
+    </script>
+        });
+    </script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

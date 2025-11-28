@@ -1,0 +1,41 @@
+﻿<!-- Top sách bán chạy -->
+@if (ViewBag.TopSach != null && ((List<DOANLTWEB.Controllers.AdminController.TopSachViewModel>)ViewBag.TopSach).Any())
+{
+    <div class="table-container">
+        <h5><i class="fas fa-fire"></i> Top 5 sách bán chạy</h5>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Mã sách</th>
+                        <th>Tên sách</th>
+                        <th>Số lượng bán</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var index = 1;
+                        foreach (var item in (List<DOANLTWEB.Controllers.AdminController.TopSachViewModel>)ViewBag.TopSach)
+                        {
+                            <tr>
+                                <td><span class="badge bg-secondary">@index</span></td>
+                                <td><strong>@item.MaSach</strong></td>
+                                <td>@item.TenSach</td>
+                                <td><span class="badge bg-success fs-6">@item.SoLuong cuốn</span></td>
+                            </tr>
+                            index++;
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-circle"></i>
+        Không có dữ liệu thống kê sách bán chạy trong khoảng thời gian này.
+    </div>
+}

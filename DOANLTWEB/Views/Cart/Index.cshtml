@@ -1,0 +1,268 @@
+﻿@model List<DOANLTWEB.Models.ChiTietGH>
+@{
+    ViewBag.Title = "Giỏ hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Sach")">Trang chủ</a></li>
+                    <li class="breadcrumb-item active">Giỏ hàng</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <h2><i class="fas fa-shopping-cart"></i> Giỏ hàng của bạn</h2>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+                </div>
+            }
+
+            @if (Model == null || !Model.Any())
+            {
+                <div class="card text-center py-5">
+                    <div class="card-body">
+                        <i class="fas fa-shopping-cart fa-4x text-muted mb-3"></i>
+                        <h4 class="text-muted">Giỏ hàng trống</h4>
+                        <p class="text-muted">Hãy thêm sách vào giỏ hàng để bắt đầu mua sắm</p>
+                        <a href="@Url.Action("Search", "Sach")" class="btn btn-primary">
+                            <i class="fas fa-book"></i> Mua sắm ngay
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Hình ảnh</th>
+                                        <th>Tên sách</th>
+                                        <th>Giá</th>
+                                        <th>Số lượng</th>
+                                        <th>Thành tiền</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr id="row-@item.MaSach">
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(item.Sach?.Hinh))
+                                                {
+                                                    <img src="~/Content/images/@item.Sach.Hinh"
+                                                         alt="@item.Sach.TenSach"
+                                                         style="width: 60px; height: 80px; object-fit: cover;">
+                                                }
+                                                else
+                                                {
+                                                    <div class="bg-light d-flex align-items-center justify-content-center"
+                                                         style="width: 60px; height: 80px;">
+                                                        <i class="fas fa-book text-muted"></i>
+                                                    </div>
+                                                }
+                                            </td>
+                                            <td>
+                                                <strong>@item.Sach?.TenSach</strong>
+                                                @if (item.Sach?.TheLoaiSach != null)
+                                                {
+                                                    <br>
+                                                    <small class="text-muted">@item.Sach.TheLoaiSach.TenTLS</small>
+                                                }
+                                            </td>
+                                            <td class="text-success fw-bold">
+                                                @string.Format("{0:N0}", item.Sach?.Gia) VNĐ
+                                            </td>
+                                            <td>
+                                                <div class="input-group" style="width: 120px;">
+                                                    <button class="btn btn-outline-secondary btn-sm btn-giam"
+                                                            type="button" data-masach="@item.MaSach">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                    <input type="number" class="form-control form-control-sm text-center quantity-input"
+                                                           value="@item.SoLuongSachCTGH" min="1" data-masach="@item.MaSach"
+                                                           data-gia="@item.Sach?.Gia">
+                                                    <button class="btn btn-outline-secondary btn-sm btn-tang"
+                                                            type="button" data-masach="@item.MaSach">
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td class="fw-bold text-success thanh-tien"
+                                                data-masach="@item.MaSach">
+                                                @{
+                                                    var thanhTien = item.SoLuongSachCTGH * (item.Sach?.Gia ?? 0);
+                                                }
+                                                @string.Format("{0:N0}", thanhTien) VNĐ
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-danger btn-sm btn-xoa"
+                                                        data-masach="@item.MaSach"
+                                                        data-tensach="@item.Sach?.TenSach">
+                                                    <i class="fas fa-trash"></i> Xóa
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                                <tfoot class="table-secondary">
+                                    <tr>
+                                        <td colspan="4" class="text-end fw-bold fs-5">Tổng cộng:</td>
+                                        <td class="fw-bold text-success fs-5" id="tong-tien">
+                                            @{
+                                                var tongTien = Model.Sum(item => item.SoLuongSachCTGH * (item.Sach?.Gia ?? 0));
+                                            }
+                                            @string.Format("{0:N0}", tongTien) VNĐ
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="@Url.Action("Search", "Sach")" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
+                            </a>
+                            <button class="btn btn-success btn-lg" id="btn-thanh-toan">
+                                <i class="fas fa-credit-card"></i> Thanh toán
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            // Cập nhật số lượng
+            $('.quantity-input').on('change', function () {
+                var maSach = $(this).data('masach');
+                var soLuong = parseInt($(this).val());
+
+                if (soLuong < 1) {
+                    $(this).val(1);
+                    soLuong = 1;
+                }
+
+                updateCart(maSach, soLuong);
+            });
+
+            // Tăng số lượng
+            $('.btn-tang').on('click', function () {
+                var maSach = $(this).data('masach');
+                var input = $('.quantity-input[data-masach="' + maSach + '"]');
+                var soLuong = parseInt(input.val()) + 1;
+                input.val(soLuong);
+                updateCart(maSach, soLuong);
+            });
+
+            // Giảm số lượng
+            $('.btn-giam').on('click', function () {
+                var maSach = $(this).data('masach');
+                var input = $('.quantity-input[data-masach="' + maSach + '"]');
+                var soLuong = parseInt(input.val()) - 1;
+
+                if (soLuong < 1) soLuong = 1;
+
+                input.val(soLuong);
+                updateCart(maSach, soLuong);
+            });
+
+            // Xóa sách khỏi giỏ hàng
+            $('.btn-xoa').on('click', function () {
+                var maSach = $(this).data('masach');
+                var tenSach = $(this).data('tensach');
+
+                if (confirm('Bạn có chắc muốn xóa "' + tenSach + '" khỏi giỏ hàng?')) {
+                    removeFromCart(maSach);
+                }
+            });
+
+            // Cập nhật giỏ hàng
+            function updateCart(maSach, soLuong) {
+                $.post('@Url.Action("UpdateCart", "Cart")', { maSach: maSach, soLuong: soLuong })
+                    .done(function (response) {
+                        if (response.success) {
+                            // Cập nhật thành tiền
+                            var thanhTien = soLuong * $('.quantity-input[data-masach="' + maSach + '"]').data('gia');
+                            $('.thanh-tien[data-masach="' + maSach + '"]').text(formatCurrency(thanhTien) + ' VNĐ');
+
+                            // Cập nhật tổng tiền
+                            $('#tong-tien').text(formatCurrency(response.tongTien) + ' VNĐ');
+
+                            // Cập nhật số lượng trên header
+                            updateCartCount(response.tongSoLuong);
+                        } else {
+                            alert(response.message);
+                        }
+                    })
+                    .fail(function () {
+                        alert('Lỗi cập nhật giỏ hàng!');
+                    });
+            }
+
+            // Xóa khỏi giỏ hàng
+            function removeFromCart(maSach) {
+                $.post('@Url.Action("RemoveFromCart", "Cart")', { maSach: maSach })
+                    .done(function (response) {
+                        if (response.success) {
+                            $('#row-' + maSach).remove();
+                            $('#tong-tien').text(formatCurrency(response.tongTien) + ' VNĐ');
+                            updateCartCount(response.tongSoLuong);
+
+                            // Nếu giỏ hàng trống
+                            if (response.tongSoLuong === 0) {
+                                location.reload();
+                            }
+                        } else {
+                            alert(response.message);
+                        }
+                    })
+                    .fail(function () {
+                        alert('Lỗi xóa sách khỏi giỏ hàng!');
+                    });
+            }
+
+            // Cập nhật số lượng trên header
+            function updateCartCount(count) {
+                $('.cart-count').text(count);
+            }
+
+            // Định dạng tiền
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('vi-VN').format(amount);
+            }
+
+            // Thanh toán
+            $('#btn-thanh-toan').on('click', function () {
+                alert('Chức năng thanh toán đang được phát triển!');
+            });
+        });
+    </script>
+
+
+    <script>
+        $(document).ready(function () {
+    $.get('@Url.Action("GetCartCount", "Cart")', function (data) {
+        $('.cart-count').text(data.count);
+    });
+});
+    </script>
+    }
