@@ -105,12 +105,12 @@
                                            class="btn btn-warning" title="Sửa">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="btn btn-danger btn-xoa-sach"
-                                                data-masach="@sach.MaSach"
-                                                data-tensach="@sach.TenSach"
-                                                title="Xóa">
+                                        <a href="/Admin/XoaSach/@sach.MaSach"
+                                           class="btn btn-danger"
+                                           title="Xóa"
+                                           onclick="return confirm('Bạn có chắc muốn xóa sách @sach.TenSach?')">
                                             <i class="fas fa-trash"></i>
-                                        </button>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
@@ -131,31 +131,3 @@
     </div>
 </div>
 
-@section scripts {
-    <script>
-        $(document).ready(function () {
-            $('.btn-xoa-sach').on('click', function () {
-                var maSach = $(this).data('masach');
-                var tenSach = $(this).data('tensach');
-                var row = $(this).closest('tr');
-
-                if (confirm('Bạn có chắc muốn xóa sách "' + tenSach + '"?\n\nLưu ý: Nếu sách đã có trong đơn hàng, sách sẽ chỉ bị ẩn.')) {
-                    $.post('@Url.Action("XoaSach", "Admin")', { id: maSach })
-                        .done(function (response) {
-                            if (response.success) {
-                                alert(response.message);
-                                row.fadeOut(400, function() {
-                                    $(this).remove();
-                                });
-                            } else {
-                                alert(response.message);
-                            }
-                        })
-                        .fail(function () {
-                            alert('Lỗi kết nối server!');
-                        });
-                }
-            });
-        });
-    </script>
-}

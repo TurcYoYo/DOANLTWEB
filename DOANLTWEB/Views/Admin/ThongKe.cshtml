@@ -1,41 +1,150 @@
-﻿<!-- Top sách bán chạy -->
-@if (ViewBag.TopSach != null && ((List<DOANLTWEB.Controllers.AdminController.TopSachViewModel>)ViewBag.TopSach).Any())
-{
-    <div class="table-container">
-        <h5><i class="fas fa-fire"></i> Top 5 sách bán chạy</h5>
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Mã sách</th>
-                        <th>Tên sách</th>
-                        <th>Số lượng bán</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @{
-                        var index = 1;
-                        foreach (var item in (List<DOANLTWEB.Controllers.AdminController.TopSachViewModel>)ViewBag.TopSach)
-                        {
-                            <tr>
-                                <td><span class="badge bg-secondary">@index</span></td>
-                                <td><strong>@item.MaSach</strong></td>
-                                <td>@item.TenSach</td>
-                                <td><span class="badge bg-success fs-6">@item.SoLuong cuốn</span></td>
-                            </tr>
-                            index++;
-                        }
-                    }
-                </tbody>
-            </table>
+﻿@{
+    ViewBag.Title = "Thống kê";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-header">
+    <div class="container-fluid">
+        <h1><i class="fas fa-chart-bar"></i> Thống kê</h1>
+        <p class="mb-0">Thống kê doanh thu và sản phẩm</p>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <!-- Bộ lọc -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5><i class="fas fa-filter"></i> Lọc thời gian</h5>
+            @using (Html.BeginForm("ThongKe", "Admin", FormMethod.Get))
+            {
+                <div class="row">
+                    <div class="col-md-3">
+                        <label class="form-label">Từ ngày</label>
+                        <input type="date" class="form-control" name="fromDate" value="@ViewBag.FromDate?.ToString(" yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Đến ngày</label>
+                        <input type="date" class="form-control" name="toDate" value="@ViewBag.ToDate?.ToString(" yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Lọc
+                        </button>
+                    </div>
+                </div>
+            }
         </div>
     </div>
-}
-else
-{
-    <div class="alert alert-warning">
-        <i class="fas fa-exclamation-circle"></i>
-        Không có dữ liệu thống kê sách bán chạy trong khoảng thời gian này.
+
+    <!-- Thống kê tổng quan -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Doanh thu</h5>
+                            <h2>@string.Format("{0:N0}", ViewBag.TongDoanhThu) VNĐ</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-money-bill-wave fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Tổng đơn</h5>
+                            <h2>@ViewBag.SoDonHang</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-shopping-cart fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Đơn hoàn thành</h5>
+                            <h2>@ViewBag.DonHangThanhCong</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h5 class="card-title">Trung bình/đơn</h5>
+                            <h2>@string.Format("{0:N0}", ViewBag.TrungBinhDonHang) VNĐ</h2>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calculator fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-}
+
+    <!-- Top sách bán chạy -->
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-fire"></i> Top sách bán chạy
+            </h5>
+        </div>
+        <div class="card-body">
+            @if (ViewBag.TopSach != null && ((List<DOANLTWEB.Controllers.AdminController.TopSachViewModel>)ViewBag.TopSach).Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Mã sách</th>
+                                <th>Tên sách</th>
+                                <th>Số lượng bán</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var index = 1;
+                                foreach (var item in (List<DOANLTWEB.Controllers.AdminController.TopSachViewModel>)ViewBag.TopSach)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-secondary">@index</span></td>
+                                        <td><strong>@item.MaSach</strong></td>
+                                        <td>@item.TenSach</td>
+                                        <td><span class="badge bg-success">@item.SoLuong cuốn</span></td>
+                                    </tr>
+                                    index++;
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                    Không có dữ liệu thống kê sách bán chạy.
+                </div>
+            }
+        </div>
+    </div>
+</div>

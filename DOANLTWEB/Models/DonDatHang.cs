@@ -32,7 +32,7 @@ namespace DOANLTWEB.Models
         public int? MaKH { get; set; }
 
         public int? MaHTTT { get; set; }
-
+        public int? MaTT { get; set; }
         public int? MaDCGH { get; set; }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -42,7 +42,7 @@ namespace DOANLTWEB.Models
         public virtual ICollection<ChiTietTrangThai> ChiTietTrangThais { get; set; }
 
         public virtual DiaChiGiaoHang DiaChiGiaoHang { get; set; }
-
+        public virtual TrangThai TrangThai { get; set; }
         public virtual HinhThucThanhToan HinhThucThanhToan { get; set; }
 
         public virtual KhachHang KhachHang { get; set; }

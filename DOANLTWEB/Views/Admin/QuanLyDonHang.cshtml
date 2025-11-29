@@ -41,17 +41,25 @@
                                 <td>@(donHang.TenKhachHang ?? "N/A")</td>
                                 <td class="text-success fw-bold">@string.Format("{0:N0}", donHang.TongTien) VNĐ</td>
                                 <td>
-                                    <select class="form-select form-select-sm select-trangthai"
-                                            data-madon="@donHang.MaDon"
-                                            style="min-width: 150px;">
-                                        @foreach (var tt in donHang.DanhSachTrangThai)
-                                        {
-                                            <option value="@tt.MaTT"
-                                                    @(tt.MaTT == donHang.MaTT ? "selected" : "")>
-                                                @tt.TenTT
-                                            </option>
-                                        }
-                                    </select>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <select class="form-select form-select-sm select-trangthai"
+                                                data-madon="@donHang.MaDon"
+                                                id="select-@donHang.MaDon"
+                                                style="min-width: 150px;">
+                                            @foreach (var tt in donHang.DanhSachTrangThai)
+                                            {
+                                                <option value="@tt.MaTT"
+                                                        @(tt.MaTT == donHang.MaTT ? "selected" : "")>
+                                                    @tt.TenTT
+                                                </option>
+                                            }
+                                        </select>
+                                        <button class="btn btn-success btn-sm .btn-cap-nhat-tt"
+                                                data-madon="@donHang.MaDon"
+                                                title="Cập nhật trạng thái">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="btn-group btn-group-sm" role="group">
@@ -80,39 +88,44 @@
 
 @section scripts {
     <script>
-        $(document).ready(function () {
-            // Cập nhật trạng thái đơn hàng
-            $('.select-trangthai').on('change', function () {
-                var maDon = $(this).data('madon');
-                var maTT = $(this).val();
-                var select = $(this);
+    function capNhatTrangThai(maDon) {
+        var selectElement = $('#trangThai_' + maDon);
+        var maTT = selectElement.val();
 
-                // Disable select trong khi cập nhật
-                select.prop('disabled', true);
+        if (!maTT) {
+            alert('Vui lòng chọn trạng thái!');
+            return;
+        }
 
-                $.post('@Url.Action("CapNhatTrangThai", "Admin")',
-                    { maDon: maDon, maTT: maTT, ghiChu: 'Cập nhật bởi admin' })
-                    .done(function (response) {
-                        if (response.success) {
-                            // Có thể thêm thông báo thành công nếu muốn
-                            console.log(response.message);
-                        } else {
-                            alert(response.message);
-                            // Reset về giá trị cũ nếu lỗi
-                            select.val(select.data('old-value'));
-                        }
-                    })
-                    .fail(function () {
-                        alert('Lỗi khi cập nhật trạng thái!');
-                        select.val(select.data('old-value'));
-                    })
-                    .always(function () {
-                        select.prop('disabled', false);
-                    });
-
-                // Lưu giá trị cũ
-                select.data('old-value', select.val());
+        if (confirm('Bạn có chắc muốn cập nhật trạng thái đơn hàng #' + maDon + '?')) {
+            $.ajax({
+                url: '@Url.Action("CapNhatTrangThai", "Admin")',
+                type: 'POST',
+                data: {
+                    maDon: maDon,
+                    maTT: maTT,
+                    ghiChu: 'Cập nhật bởi admin'
+                },
+                success: function (response) {
+                    if (response.success) {
+                        alert('Cập nhật trạng thái thành công!');
+                        location.reload();
+                    } else {
+                        alert('Lỗi: ' + response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert('Lỗi kết nối: ' + error);
+                    console.error('Chi tiết lỗi:', xhr.responseText);
+                }
             });
-        });
+        }
+    }
+
+    // Hoặc dùng event delegation cho nhiều button
+    $(document).on('click', '.btn-cap-nhat-tt', function() {
+        var maDon = $(this).data('madon');
+        capNhatTrangThai(maDon);
+    });
     </script>
 }

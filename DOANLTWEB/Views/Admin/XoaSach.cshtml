@@ -1,0 +1,82 @@
+﻿@model DOANLTWEB.Models.Sach
+@{
+    ViewBag.Title = "Xóa sách";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-header">
+    <div class="container-fluid">
+        <h1><i class="fas fa-trash"></i> Xóa sách</h1>
+        <p class="mb-0">Xác nhận xóa sách khỏi hệ thống</p>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-body">
+            <h4 class="text-danger">Bạn có chắc chắn muốn xóa sách này?</h4>
+
+            <div class="row mt-4">
+                <div class="col-md-2">
+                    @if (!string.IsNullOrEmpty(Model.Hinh))
+                    {
+                        <img src="~/Content/images/@Model.Hinh" alt="@Model.TenSach"
+                             class="img-thumbnail" style="width: 100px; height: 120px; object-fit: cover;">
+                    }
+                    else
+                    {
+                        <div class="bg-light d-flex align-items-center justify-content-center"
+                             style="width: 100px; height: 120px;">
+                            <i class="fas fa-book fa-2x text-muted"></i>
+                        </div>
+                    }
+                </div>
+                <div class="col-md-10">
+                    <table class="table table-bordered">
+                        <tr>
+                            <th width="150">Mã sách:</th>
+                            <td><strong>#@Model.MaSach</strong></td>
+                        </tr>
+                        <tr>
+                            <th>Tên sách:</th>
+                            <td>@Model.TenSach</td>
+                        </tr>
+                        <tr>
+                            <th>Giá:</th>
+                            <td class="text-success fw-bold">
+                                @if (Model.Gia.HasValue)
+                                {
+                                    @Html.Raw(string.Format("{0:N0}", Model.Gia) + " VNĐ")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Chưa có giá</span>
+                                }
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="alert alert-warning mt-3">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Lưu ý:</strong> Hành động này không thể hoàn tác. Sách sẽ bị xóa vĩnh viễn khỏi hệ thống.
+            </div>
+
+            @using (Html.BeginForm("XoaSach", "Admin", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.HiddenFor(model => model.MaSach)
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Xác nhận xóa
+                    </button>
+                    <a href="@Url.Action("QuanLySach", "Admin")" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

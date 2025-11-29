@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Linq;
@@ -32,6 +33,7 @@ namespace DOANLTWEB.Models
         public virtual DbSet<TheLoaiSach> TheLoaiSaches { get; set; }
         public virtual DbSet<TrangThai> TrangThais { get; set; }
         public virtual DbSet<XaPhuong> XaPhuongs { get; set; }
+        public IEnumerable<object> Sach_TacGia { get; internal set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
